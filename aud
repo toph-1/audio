@@ -1,0 +1,40 @@
+#!/bin/bash
+# sox_recorder.sh
+
+RECORDINGS_DIR="$HOME/AudioRecordings"
+mkdir -p "$RECORDINGS_DIR"
+
+record_sox() {
+    local duration="$1"
+    local filename="recording_$(date +%Y%m%d_%H%M%S).wav"
+    local filepath="$RECORDINGS_DIR/$filename"
+    
+    if [ -n "$duration" ]; then
+        echo "Recording for $duration seconds..."
+        rec "$filepath" trim 0 "$duration"
+    else
+        echo "Recording until Ctrl+C..."
+        rec "$filepath"
+    fi
+    
+    echo "Saved: $filepath"
+}
+
+case "$1" in
+    record)
+        record_sox "$2"
+        ;;
+    play)
+        play "$RECORDINGS_DIR/$2"
+        ;;
+    list)
+        ls -lh "$RECORDINGS_DIR"/*.wav 2>/dev/null || echo "No recordings found"
+        ;;
+    *)
+        echo "Usage: $0 {record|play|list} [duration]"
+        echo "  record - Record audio (optional: duration in seconds)"
+        echo "  play   - Play a recording"
+        echo "  list   - List all recordings"
+        exit 1
+        ;;
+esac
